@@ -10,6 +10,7 @@ public class State {
     private int[][] board;
     public final int dimension;
     private int currentPlayer;
+    private Move previousMove;
 
     State(int dimension) {
         this.dimension = dimension;
@@ -26,7 +27,28 @@ public class State {
             board[x][0] = WHITE;
             board[x][dimension-1] = WHITE;
         }
-        currentPlayer ^= 1;
+        currentPlayer = BLACK;
+        previousMove = null;
+    }
+    State(State other) {
+        ///create a deep copy of other object
+        this.dimension = other.dimension;
+        board = new int[dimension][dimension];
+
+        for (int i = 0; i < dimension; i++) {
+            for (int j = 0; j < dimension; j++) {
+                board[i][j] = other.board[i][j];
+            }
+        }
+        currentPlayer = other.currentPlayer;
+        previousMove = other.previousMove;
+    }
+    State makeMove(Move move) {
+        State newState = new State(this);
+        newState.board[move.source.row][move.source.column] = NONE;
+        newState.board[move.destination.row][move.destination.column] = currentPlayer;
+        newState.currentPlayer = otherPlayer();
+        return newState;
     }
 
     private int[][] directions = {{1, 1}, {-1, -1}, {1, 0}, {-1, 0}, {1, -1}, {-1, 1}, {0, 1}, {0, -1}};
@@ -37,10 +59,12 @@ public class State {
         for (int i = 0; i < directions.length; i += 2) {
             int jump =  countPieces(source, directions[i][0],   directions[i][1]) +
                         countPieces(source, directions[i+1][0], directions[i+1][1]) + 1;
+            ///move to directions[i]
             Cell destination = new Cell(source.row+directions[i][0]*jump, source.column+directions[i][1]*jump);
             if (isValid(destination) && !enemyBetween(source, destination, directions[i])) {
                 moves.add(new Move(source, destination));
             }
+            ///move to directions[i+1]
             destination = new Cell(source.row+directions[i+1][0]*jump, source.column+directions[i+1][1]*jump);
             if (isValid(destination) && !enemyBetween(source, destination, directions[i+1])) {
                 moves.add(new Move(source, destination));
