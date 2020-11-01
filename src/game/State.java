@@ -7,12 +7,12 @@ public class State {
     public static final int BLACK = 0;
     public static final int WHITE = 1;
 
-    private int[][] board;
+    public int[][] board;
     public final int dimension;
     private int currentPlayer;
-    private Move previousMove;
+    private final Move previousMove;
 
-    State(int dimension) {
+    public State(int dimension) {
         this.dimension = dimension;
         board = new int[dimension][dimension];
 
@@ -30,7 +30,7 @@ public class State {
         currentPlayer = BLACK;
         previousMove = null;
     }
-    State(State other) {
+    public State(State other) {
         ///create a deep copy of other object
         this.dimension = other.dimension;
         board = new int[dimension][dimension];
@@ -43,7 +43,7 @@ public class State {
         currentPlayer = other.currentPlayer;
         previousMove = other.previousMove;
     }
-    State makeMove(Move move) {
+    public State makeMove(Move move) {
         State newState = new State(this);
         newState.board[move.source.row][move.source.column] = NONE;
         newState.board[move.destination.row][move.destination.column] = currentPlayer;
@@ -61,12 +61,12 @@ public class State {
                         countPieces(source, directions[i+1][0], directions[i+1][1]) + 1;
             ///move to directions[i]
             Cell destination = new Cell(source.row+directions[i][0]*jump, source.column+directions[i][1]*jump);
-            if (isValid(destination) && !enemyBetween(source, destination, directions[i])) {
+            if (isValidMove(source, destination, directions[i])) {
                 moves.add(new Move(source, destination));
             }
             ///move to directions[i+1]
             destination = new Cell(source.row+directions[i+1][0]*jump, source.column+directions[i+1][1]*jump);
-            if (isValid(destination) && !enemyBetween(source, destination, directions[i+1])) {
+            if (isValidMove(source, destination, directions[i+1])) {
                 moves.add(new Move(source, destination));
             }
         }
@@ -98,7 +98,7 @@ public class State {
         return ans;
     }
 
-    boolean enemyBetween(Cell source, Cell destination, int[] dir) {
+    private boolean enemyBetween(Cell source, Cell destination, int[] dir) {
         int x = source.row;
         int y = source.column;
         for (int j = 1; ; j++) {
@@ -109,15 +109,39 @@ public class State {
         }
         return false;
     }
-    boolean isValid(int x, int y) {
+    public boolean isValid(int x, int y) {
         if (x < 0 || x >= dimension) return false;
         if (y < 0 || y >= dimension) return false;
         return true;
     }
-    boolean isValid(Cell cell) {
+    public boolean isValidMove(Cell source, Cell destination, int[] dir) {
+        if (!isValid(destination)) return false;
+        if (board[destination.row][destination.column] == currentPlayer) return false;
+        return !enemyBetween(source, destination, dir);
+    }
+    public boolean isValidMove(Cell source, Cell destination) {
+        int dx = destination.row - source.row;
+        int dy = destination.column - source.column;
+        if (dx == 0 && dy == 0) return false;
+        if (dx != 0 && dy != 0 && Math.abs(dx) != Math.abs(dy)) {
+            return false;
+        }
+        int jump = Math.max(Math.abs(dx), Math.abs(dy));
+        int vx = dx/jump;
+        int vy = dy/jump;
+        int idx = -1;
+        for (int i = 0; i < directions.length; i++) {
+            if (directions[i][0] == vx && directions[i][1] == vy) {
+                idx = i;
+                break;
+            }
+        }
+        return isValidMove(source, destination, directions[idx]);
+    }
+    public boolean isValid(Cell cell) {
         return isValid(cell.row, cell.column);
     }
-    int otherPlayer() {
+    public int otherPlayer() {
         return currentPlayer^1;
     }
 }
