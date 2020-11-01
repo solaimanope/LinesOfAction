@@ -10,13 +10,11 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Main extends Application {
-    public static Scanner scanner;
-    public static Random random;
+    public static Scanner scanner = new Scanner(System.in);
+    public static Random random = new Random(1605012);
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        scanner = new Scanner(System.in);
-        random = new Random();
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("Hello World");
         primaryStage.setScene(new Scene(root, 300, 275));

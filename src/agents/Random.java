@@ -15,6 +15,8 @@ public class Random extends Agent {
     public Move makeMove(State state) {
         Vector<Move> moves = state.allAvailableMoves();
         int idx = Main.random.nextInt(moves.size());
-        return moves.get(idx);
+        Move move = moves.get(idx);
+        System.out.println("[Random] Move from " + move.source + " to " + move.destination);
+        return move;
     }
 }

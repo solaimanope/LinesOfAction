@@ -18,7 +18,7 @@ public class Cell {
 
     public static Cell fromString(String string) {
         if (string.length() != 2) return null;
-        int y = string.charAt(0)-'0';
+        int y = string.charAt(0)-'A';
         int x = string.charAt(1)-'1';
         return new Cell(x, y);
     }
