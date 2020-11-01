@@ -2,7 +2,7 @@ package agents;
 
 import game.Move;
 import game.State;
-import sample.Main;
+import ui.Main;
 
 import java.util.Vector;
 

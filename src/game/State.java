@@ -1,5 +1,7 @@
 package game;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Vector;
 
 public class State {
@@ -9,7 +11,7 @@ public class State {
 
     public int[][] board;
     public final int dimension;
-    private int currentPlayer;
+    public int currentPlayer;
     private final Move previousMove;
 
     public State(int dimension) {
@@ -138,6 +140,32 @@ public class State {
         }
         return isValidMove(source, destination, directions[idx]);
     }
+
+    private int dfs(Cell at, int[][] vis) {
+        int size = 1;
+        vis[at.row][at.column] = 1;
+        for (int[] dir : directions) {
+            Cell to = new Cell(at.row+dir[0], at.column+dir[1]);
+            if (isValid(to) && board[at.row][at.column] == board[to.row][to.column] && vis[to.row][to.column] == 0) {
+                size += dfs(to, vis);
+            }
+        }
+        return size;
+    }
+
+    public boolean isConnected(int player) {
+        Vector<Cell>playerPieces = new Vector<>();
+        for (int i = 0; i < dimension; i++) {
+            for (int j = 0; j < dimension; j++) {
+                if (board[i][j] == player) {
+                    playerPieces.add(new Cell(i, j));
+                }
+            }
+        }
+        if (playerPieces.size() <= 1) return true;
+        return dfs(playerPieces.get(0), new int[dimension][dimension]) == playerPieces.size();
+    }
+
     public boolean isValid(Cell cell) {
         return isValid(cell.row, cell.column);
     }
