@@ -22,8 +22,8 @@ public class Referee {
             Move givenMove = currentAgent.makeMove(new State(currentState));
             currentState = currentState.makeMove(givenMove);
 
-            System.out.println("[" + currentAgent.AgentName() + ":" + currentAgent.designatedColor()
-                    + "] Move from " + givenMove.source + " to " +  givenMove.destination);
+//            System.out.println("[" + currentAgent.AgentName() + ":" + currentAgent.designatedColor()
+//                    + "] Move from " + givenMove.source + " to " +  givenMove.destination);
 
             if (currentState.isConnected(currentState.otherPlayer())) break;
         }
