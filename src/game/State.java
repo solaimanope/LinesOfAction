@@ -12,7 +12,6 @@ public class State {
     public int[][] board;
     public final int dimension;
     public int currentPlayer;
-    private final Move previousMove;
 
     public State(int dimension) {
         this.dimension = dimension;
@@ -30,7 +29,6 @@ public class State {
             board[x][dimension-1] = WHITE;
         }
         currentPlayer = BLACK;
-        previousMove = null;
     }
     public State(State other) {
         ///create a deep copy of other object
@@ -43,7 +41,6 @@ public class State {
             }
         }
         currentPlayer = other.currentPlayer;
-        previousMove = other.previousMove;
     }
     public State makeMove(Move move) {
         State newState = new State(this);
