@@ -24,7 +24,8 @@ public class Node {
         return children;
     }
 
-    public Double getBestScoreSoFar() {
+    public double getBestScoreSoFar() {
+        if (bestScoreSoFar == null) return 0;
         return bestScoreSoFar;
     }
 

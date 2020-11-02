@@ -1,19 +1,34 @@
 package agents;
 
+import agents.heuristics.Heuristics;
+import agents.heuristics.MaximizePositionalScore;
 import game.Move;
 import game.Node;
 import game.State;
 
 import java.util.Collections;
+import java.util.Vector;
 
-public abstract class Minimax extends Agent {
+public class Minimax extends Agent {
     public final double INF = 1000000000;
 
-    public Minimax(int pieceColor) {
-        super.pieceColor = pieceColor;
+    private Vector<Heuristics>heuristicsVector;
+    protected double evaluateState(State state, int color) {
+        double result = 0;
+        for (Heuristics heuristics : heuristicsVector) {
+            result += heuristics.calculateScore(state, color) * heuristics.getCoefficient();
+        }
+        return result;
+    }
+    public void addHeuristics(Heuristics heuristics, double coefficient) {
+        heuristics.setCoefficient(coefficient);
+        heuristicsVector.add(heuristics);
     }
 
-    protected abstract double evaluateState(State state, int color);
+    public Minimax(int pieceColor) {
+        this.pieceColor = pieceColor;
+        heuristicsVector = new Vector<>();
+    }
 
     private double minimax(Node node, int depth, double alpha, double beta) {
         double score = evaluateState(node.state, pieceColor);
@@ -69,5 +84,10 @@ public abstract class Minimax extends Agent {
             minimax(root, depth, -INF, INF);
         }
         return root.getChildren().get(0).getPreviousMove();
+    }
+
+    @Override
+    public String AgentName() {
+        return "Minimax";
     }
 }

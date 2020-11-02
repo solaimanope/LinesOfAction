@@ -1,6 +1,7 @@
 package game;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Vector;
 
@@ -12,6 +13,8 @@ public class State {
     public int[][] board;
     public final int dimension;
     public int currentPlayer;
+
+    private List<Cell>[] pieces;
 
     public State(int dimension) {
         this.dimension = dimension;
@@ -29,6 +32,7 @@ public class State {
             board[x][dimension-1] = WHITE;
         }
         currentPlayer = BLACK;
+        pieces = new List[2];
     }
     public State(State other) {
         ///create a deep copy of other object
@@ -41,6 +45,7 @@ public class State {
             }
         }
         currentPlayer = other.currentPlayer;
+        pieces = new List[2];
     }
     public State makeMove(Move move) {
         State newState = new State(this);
@@ -82,6 +87,20 @@ public class State {
             }
         }
         return moves;
+    }
+
+    public List<Cell> getPieces(int color) {
+        if (pieces[color] == null) {
+            pieces[color] = new LinkedList<>();
+            for (int i = 0; i < dimension; i++) {
+                for (int j = 0; j < dimension; j++) {
+                    if (board[i][j] == color) {
+                        pieces[color].add(new Cell(i, j));
+                    }
+                }
+            }
+        }
+        return pieces[color];
     }
 
     private int countPieces(Cell source, int dx, int dy) {
@@ -168,5 +187,18 @@ public class State {
     }
     public int otherPlayer() {
         return currentPlayer^1;
+    }
+
+    public Cell[] boundingBoxOf(int player) {
+        int mnx = dimension, mny = dimension;
+        int mxx = -1, mxy = -1;
+        for (Cell cell : getPieces(player)) {
+            mnx = Math.min(mnx, cell.row);
+            mxx = Math.max(mxx, cell.row);
+            mny = Math.min(mny, cell.column);
+            mxy = Math.max(mxy, cell.column);
+        }
+        Cell cells[] = {new Cell(mnx, mny), new Cell(mxx, mxy)};
+        return cells;
     }
 }

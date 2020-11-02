@@ -69,4 +69,8 @@ public class HumanConsole extends Agent {
         System.out.println("[HumanConsole] Move from " + source + " to " + destination);
         return new Move(source, destination);
     }
+    @Override
+    public String AgentName() {
+        return "HumanConsole";
+    }
 }

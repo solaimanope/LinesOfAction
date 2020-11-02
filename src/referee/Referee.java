@@ -8,23 +8,23 @@ public class Referee {
     private Agent blackAgent;
     private Agent whiteAgent;
 
-    Referee(int dimension, Agent blackAgent, Agent whiteAgent) {
+    public Referee(int dimension, Agent blackAgent, Agent whiteAgent) {
         this.dimension = dimension;
         this.blackAgent = blackAgent;
         this.whiteAgent = whiteAgent;
     }
 
-    String conductGame() {
+    public String conductGame() {
         State currentState = new State(dimension);
         String winner;
         for (int turnCount = 0; ; turnCount++) {
-            Move givenMove;
-            if (currentState.currentPlayer == State.BLACK) {
-                givenMove = blackAgent.makeMove(new State(currentState));
-            } else {
-                givenMove = whiteAgent.makeMove(new State(currentState));
-            }
+            Agent currentAgent = currentState.currentPlayer == State.BLACK ? blackAgent : whiteAgent;
+            Move givenMove = currentAgent.makeMove(new State(currentState));
             currentState = currentState.makeMove(givenMove);
+
+            System.out.println("[" + currentAgent.AgentName() + ":" + currentAgent.designatedColor()
+                    + "] Move from " + givenMove.source + " to " +  givenMove.destination);
+
             if (currentState.isConnected(currentState.otherPlayer())) break;
         }
         if (currentState.otherPlayer() == State.BLACK) {

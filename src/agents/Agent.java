@@ -10,4 +10,5 @@ public abstract class Agent {
         if (pieceColor == State.BLACK) return "BLACK";
         return "WHITE";
     }
+    public abstract String AgentName();
 }
