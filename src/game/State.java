@@ -33,6 +33,8 @@ public class State {
         }
         currentPlayer = BLACK;
         pieces = new List[2];
+        movesAt = new Vector[dimension][dimension];
+        allMoves = null;
     }
     public State(State other) {
         ///create a deep copy of other object
@@ -46,6 +48,8 @@ public class State {
         }
         currentPlayer = other.currentPlayer;
         pieces = new List[2];
+        movesAt = new Vector[dimension][dimension];
+        allMoves = null;
     }
     public State makeMove(Move move) {
         State newState = new State(this);
@@ -55,9 +59,18 @@ public class State {
         return newState;
     }
 
+    public int gameEndStatus() {
+        if (isConnected(otherPlayer())) return otherPlayer();
+        if (allAvailableMoves().isEmpty()) return otherPlayer();
+        return NONE;
+    }
+
     private int[][] directions = {{1, 1}, {-1, -1}, {1, 0}, {-1, 0}, {1, -1}, {-1, 1}, {0, 1}, {0, -1}};
+
+    private Vector<Move>[][] movesAt;
     public Vector<Move> availableMovesAt(Cell source) {
-        Vector<Move> moves = new Vector<>();
+        if (movesAt[source.row][source.column] != null) return movesAt[source.row][source.column];
+        Vector<Move> moves = movesAt[source.row][source.column] = new Vector<>();
         if (board[source.row][source.column] != currentPlayer) return moves;
 
         for (int i = 0; i < directions.length; i += 2) {
@@ -76,17 +89,20 @@ public class State {
         }
         return moves;
     }
+
+    private Vector<Move>allMoves;
     public Vector<Move>allAvailableMoves() {
-        Vector<Move> moves = new Vector<>();
+        if (allMoves != null) return allMoves;
+        allMoves = new Vector<>();
         for (int x = 0; x < dimension; x++) {
             for (int y = 0; y < dimension; y++) {
                 if (board[x][y] == currentPlayer) {
                     Vector<Move>tmp = availableMovesAt(new Cell(x, y));
-                    moves.addAll(tmp);
+                    allMoves.addAll(tmp);
                 }
             }
         }
-        return moves;
+        return allMoves;
     }
 
     public List<Cell> getPieces(int color) {
@@ -170,16 +186,8 @@ public class State {
     }
 
     public boolean isConnected(int player) {
-        Vector<Cell>playerPieces = new Vector<>();
-        for (int i = 0; i < dimension; i++) {
-            for (int j = 0; j < dimension; j++) {
-                if (board[i][j] == player) {
-                    playerPieces.add(new Cell(i, j));
-                }
-            }
-        }
-        if (playerPieces.size() <= 1) return true;
-        return dfs(playerPieces.get(0), new int[dimension][dimension]) == playerPieces.size();
+        if (getPieces(player).size() <= 1) return true;
+        return dfs(getPieces(player).get(0), new int[dimension][dimension]) == getPieces(player).size();
     }
 
     public boolean isValid(Cell cell) {

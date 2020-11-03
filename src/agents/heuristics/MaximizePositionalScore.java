@@ -1,5 +1,6 @@
 package agents.heuristics;
 
+import agents.Minimax;
 import game.Cell;
 import game.State;
 
@@ -35,6 +36,10 @@ public class MaximizePositionalScore extends Heuristics {
     }
     @Override
     public double calculateScore(State state, int color) {
+        int status = state.gameEndStatus();
+        if (status != State.NONE) {
+            return status == color ? Minimax.INF : -Minimax.INF;
+        }
         return pieceSquareTableScore(state, color) - pieceSquareTableScore(state, color ^ 1);
     }
 }

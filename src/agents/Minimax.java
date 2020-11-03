@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.Vector;
 
 public class Minimax extends Agent {
-    public final double INF = 1000000000;
+    public static final double INF = 1000000000;
 
     private Vector<Heuristics>heuristicsVector;
     protected double evaluateState(State state, int color) {
@@ -80,9 +80,12 @@ public class Minimax extends Agent {
     @Override
     public Move makeMove(State state) {
         Node root = new Node(state, null);
+        long startTime = System.currentTimeMillis();
         for (int depth = 1; depth <= 5; depth++) {
+            root = new Node(state, null);
             minimax(root, depth, -INF, INF);
         }
+        System.out.println("time taken " + (System.currentTimeMillis()-startTime));
         return root.getChildren().get(0).getPreviousMove();
     }
 

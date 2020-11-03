@@ -1,6 +1,10 @@
 package ui;
 
+import agents.*;
+import agents.heuristics.MaximizePositionalScore;
+import game.State;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
@@ -8,6 +12,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import referee.Referee;
 
 public class AgentSelection {
     private final Font font = Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR, 26);
@@ -78,7 +83,37 @@ public class AgentSelection {
         startButton.setLayoutX(350);
         startButton.setLayoutY(500);
         startButton.setFont(font);
+        startButton.setOnMouseClicked(e -> clickStart());
         root.getChildren().add(startButton);
+    }
+
+    private void clickStart() {
+        GameUI gameUI = new GameUI(8);
+        Agent blackAgent;
+        if (blackHuman.isSelected()) {
+            blackAgent = new HumanUI(State.BLACK, gameUI);
+        } else {
+            Minimax minimax = new Minimax(State.BLACK);
+            minimax.addHeuristics(new MaximizePositionalScore(), 1);
+            blackAgent = minimax;
+        }
+        Agent whiteAgent;
+        if (whiteHuman.isSelected()) {
+            whiteAgent = new HumanUI(State.WHITE, gameUI);
+        } else {
+            Minimax minimax = new Minimax(State.WHITE);
+            minimax.addHeuristics(new MaximizePositionalScore(), 1);
+            whiteAgent = minimax;
+        }
+//        blackAgent = new Random(State.BLACK);
+//        whiteAgent = new Random(State.WHITE);
+
+        Referee referee = new Referee(8, blackAgent, whiteAgent, gameUI);
+        gameUI.setReferee(referee);
+        referee.init();
+        Main.window.setScene(new Scene(gameUI.getRoot(), 640, 640));
+
+//        referee.conductGame();
     }
 
     public Group getRoot() {
