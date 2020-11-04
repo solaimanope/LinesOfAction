@@ -1,9 +1,6 @@
 package game;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Vector;
+import java.util.*;
 
 public class State {
     public static final int NONE = -1;
@@ -13,6 +10,13 @@ public class State {
     public int[][] board;
     public final int dimension;
     public int currentPlayer;
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(dimension, currentPlayer);
+        result = 31 * result + Arrays.hashCode(board);
+        return result;
+    }
 
     private List<Cell>[] pieces;
 

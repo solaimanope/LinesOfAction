@@ -15,7 +15,7 @@ public class MaximizePositionalScore extends Heuristics {
         {-25,  10,  10,  10,  10,  10,  10,  -25},
         {-80, -25, -20, -20, -20, -20, -25, -80}
     };
-    public static final int maxPiece8SquareTable = 400;
+    public static final int maxPiece8SquareTable = 50;
     public static final int[][] piece6SquareTable = {
         {-60, -20, -15,  -15, -20, -60},
         {-20,  20,  20,   20,  20, -20},
@@ -24,7 +24,7 @@ public class MaximizePositionalScore extends Heuristics {
         {-20,  20,  20,   20,  20, -20},
         {-60, -20, -15,  -15, -20, -60}
     };
-    public static final int maxPiece6SquareTable = 240;
+    public static final int maxPiece6SquareTable = 40;
 
     private static double pieceSquareTableScore(State state, int color) {
         int[][] table = state.dimension == 8 ? piece8SquareTable : piece6SquareTable;
@@ -32,14 +32,12 @@ public class MaximizePositionalScore extends Heuristics {
         for (Cell piece : state.getPieces(color)) {
             total += table[piece.row][piece.column];
         }
+
+        total /= state.getPieces(color).size();
         return total/(state.dimension == 8 ? maxPiece8SquareTable : maxPiece6SquareTable);
     }
     @Override
     public double calculateScore(State state, int color) {
-        int status = state.gameEndStatus();
-        if (status != State.NONE) {
-            return status == color ? Minimax.INF : -Minimax.INF;
-        }
         return pieceSquareTableScore(state, color) - pieceSquareTableScore(state, color ^ 1);
     }
 }

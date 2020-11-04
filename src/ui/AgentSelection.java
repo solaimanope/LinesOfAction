@@ -2,6 +2,7 @@ package ui;
 
 import agents.*;
 import agents.heuristics.MaximizePositionalScore;
+import agents.heuristics.MinimumBoundingBox;
 import game.State;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -15,7 +16,7 @@ import javafx.scene.text.Text;
 import referee.Referee;
 
 public class AgentSelection {
-    private final Font font = Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR, 26);
+    public static final Font font = Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR, 26);
     private Group root;
     private RadioButton blackHuman, blackAI;
     private ToggleGroup blackToggleGroup;
@@ -25,8 +26,12 @@ public class AgentSelection {
     private ToggleGroup whiteToggleGroup;
     private Text whiteText;
 
-    private final static int blackX = 50;
-    private final static int whiteX = 500;
+    private RadioButton dim8Radio, dim6Radio;
+    private ToggleGroup dimToggleGroup;
+    private Text dimText;
+
+    private final static int blackX = 30;
+    private final static int whiteX = 550;
 
     private Button startButton;
 
@@ -78,6 +83,29 @@ public class AgentSelection {
         whiteHuman.setToggleGroup(whiteToggleGroup);
         whiteAI.setToggleGroup(whiteToggleGroup);
         whiteAI.setSelected(true);
+        
+        dimText = new Text("Select dimension");
+        dimText.setLayoutX(350);
+        dimText.setLayoutY(380);
+        dimText.setFont(font);
+        root.getChildren().add(dimText);
+
+        dim8Radio = new RadioButton("8x8");
+        dim8Radio.setLayoutX(350);
+        dim8Radio.setLayoutY(400);
+        dim8Radio.setFont(font);
+        root.getChildren().add(dim8Radio);
+
+        dim6Radio = new RadioButton("6x6");
+        dim6Radio.setLayoutX(450);
+        dim6Radio.setLayoutY(400);
+        dim6Radio.setFont(font);
+        root.getChildren().add(dim6Radio);
+
+        dimToggleGroup = new ToggleGroup();
+        dim8Radio.setToggleGroup(dimToggleGroup);
+        dim6Radio.setToggleGroup(dimToggleGroup);
+        dim8Radio.setSelected(true);
 
         startButton = new Button("Start Game");
         startButton.setLayoutX(350);
@@ -88,13 +116,19 @@ public class AgentSelection {
     }
 
     private void clickStart() {
-        GameUI gameUI = new GameUI(8);
+        int dimension = 8;
+        if (dim6Radio.isSelected()) {
+            dimension = 6;
+        }
+
+        GameUI gameUI = new GameUI(dimension);
         Agent blackAgent;
         if (blackHuman.isSelected()) {
             blackAgent = new HumanUI(State.BLACK, gameUI);
         } else {
             Minimax minimax = new Minimax(State.BLACK);
             minimax.addHeuristics(new MaximizePositionalScore(), 1);
+            minimax.addHeuristics(new MinimumBoundingBox(), 0.5);
             blackAgent = minimax;
         }
         Agent whiteAgent;
@@ -105,13 +139,15 @@ public class AgentSelection {
             minimax.addHeuristics(new MaximizePositionalScore(), 1);
             whiteAgent = minimax;
         }
+
+
 //        blackAgent = new Random(State.BLACK);
 //        whiteAgent = new Random(State.WHITE);
 
-        Referee referee = new Referee(8, blackAgent, whiteAgent, gameUI);
+        Referee referee = new Referee(dimension, blackAgent, whiteAgent, gameUI);
         gameUI.setReferee(referee);
-        referee.init();
-        Main.window.setScene(new Scene(gameUI.getRoot(), 640, 640));
+        referee.initUI();
+        Main.window.setScene(new Scene(gameUI.getRoot(), SquareUI.SQUARE_SIZE*dimension, SquareUI.SQUARE_SIZE*dimension));
 
 //        referee.conductGame();
     }

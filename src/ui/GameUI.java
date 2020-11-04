@@ -1,5 +1,6 @@
 package ui;
 
+import agents.HumanUI;
 import game.Cell;
 import game.Move;
 import game.State;
@@ -7,6 +8,9 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import referee.Referee;
 
 import java.util.Vector;
@@ -44,19 +48,26 @@ public class GameUI {
             }
         }
     }
-//    void addSquareAndImageUI() {
-//        addSquareUI();
-//
-//        for (int i = 0; i < referee.currentState.dimension; i++) {
-//            for (int j = 0; j < referee.currentState.dimension; j++) {
-//                squareUI[i][j].showCircle(referee.currentState.board[i][j]);
-////                squareUI[i][j].showImage(currentState.board[i][j]);
-//            }
-//        }
-//        Main.window.setScene(new Scene(root, 640, 640));
-//    }
+
+    public void showWinUI(String winner) {
+        Rectangle rectangle = new Rectangle(SquareUI.SQUARE_SIZE*dimension, SquareUI.SQUARE_SIZE*dimension);
+        rectangle.setLayoutX(0);
+        rectangle.setLayoutY(0);
+        rectangle.setFill(Color.WHITE);
+        rectangle.setOpacity(0.5);
+        root.getChildren().add(rectangle);
+
+        Text winText = new Text(winner + " WON!");
+        winText.setFont(AgentSelection.font);
+        winText.setLayoutX(0);
+        winText.setLayoutY(0);
+        //winText.setTextAlignment(TextAlignment.CENTER);
+        root.getChildren().add(winText);
+    }
 
     void clickedOnSquare(Cell cell) {
+        if (!(referee.currentAgent instanceof HumanUI)) return;
+
         if (activeSource == null) {
             if (referee.currentState.board[cell.row][cell.column] == referee.currentState.currentPlayer) {
                 activeSource = cell;

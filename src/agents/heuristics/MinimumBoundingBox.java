@@ -12,10 +12,6 @@ public class MinimumBoundingBox extends Heuristics {
     }
     @Override
     public double calculateScore(State state, int color) {
-        int status = state.gameEndStatus();
-        if (status != State.NONE) {
-            return status == color ? Minimax.INF : -Minimax.INF;
-        }
         return boundingBoxScore(state, color) - boundingBoxScore(state, color ^ 1);
     }
 }

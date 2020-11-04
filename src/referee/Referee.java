@@ -2,6 +2,7 @@ package referee;
 
 import agents.*;
 import game.*;
+import javafx.application.Platform;
 import ui.GameUI;
 
 public class Referee {
@@ -11,8 +12,8 @@ public class Referee {
     private GameUI gameUI;
     public State currentState;
     private int turnCount;
-    private Agent currentAgent;
-    private Agent otherAgent;
+    public Agent currentAgent;
+    public Agent otherAgent;
 
     public Referee(int dimension, Agent blackAgent, Agent whiteAgent, GameUI gameUI) {
         this.dimension = dimension;
@@ -21,17 +22,25 @@ public class Referee {
         this.gameUI = gameUI;
     }
 
-    public void init() {
+    public void initUI() {
         currentState = new State(dimension);
         gameUI.currentStateUpdated();
         turnCount = 0;
         currentAgent = blackAgent;
         otherAgent = whiteAgent;
 
+        activateNonHumanUIThread();
+    }
+
+    private void activateNonHumanUIThread() {
         if (!(currentAgent instanceof HumanUI)) {
             System.out.println("expecting move from " + currentAgent.AgentName());
-            Move givenMove = currentAgent.makeMove(new State(currentState));
-            validMoveMade(givenMove);
+            new Thread(() -> {
+                Move givenMove = currentAgent.makeMove(new State(currentState));
+                Platform.runLater(() -> {
+                    validMoveMade(givenMove);
+                });
+            }).start();
         }
     }
 
@@ -52,14 +61,11 @@ public class Referee {
         if (status != State.NONE) {
             System.out.println("Game Finished");
             System.out.println(otherAgent.designatedColor() + " WON");
+            gameUI.showWinUI(otherAgent.AgentName());
             return;
         }
 
-        if (!(currentAgent instanceof HumanUI)) {
-            System.out.println("expecting move from " + currentAgent.AgentName());
-            Move givenMove = currentAgent.makeMove(new State(currentState));
-            validMoveMade(givenMove);
-        }
+        activateNonHumanUIThread();
     }
 
     private String conductGame() {
