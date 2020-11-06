@@ -23,14 +23,49 @@ public class GameUI {
     private Vector<Cell> availableDestinations;
     private int dimension;
     private Referee referee;
+    private Text whoseMove;
+    private Text goBack;
 
     public GameUI(int dimension) {
         this.dimension = dimension;
+        root = new Group();
+
         addSquareUI();
 
         activeSource = null;
         activeDestination = null;
         availableDestinations = null;
+
+        Rectangle bottom = new Rectangle(SquareUI.SQUARE_SIZE*dimension, 50);
+        bottom.setLayoutX(0);
+        bottom.setLayoutY(SquareUI.SQUARE_SIZE*dimension);
+        bottom.setFill(Color.rgb(222, 214, 201));
+        root.getChildren().add(bottom);
+
+        whoseMove = new Text("whose move");
+        whoseMove.setLayoutX(15);
+        whoseMove.setLayoutY(dimension*SquareUI.SQUARE_SIZE+30);
+        whoseMove.setFont(AgentSelection.font);
+        root.getChildren().add(whoseMove);
+
+        goBack = new Text("Go Back");
+        goBack.setLayoutX(dimension*SquareUI.SQUARE_SIZE-120);
+        goBack.setLayoutY(dimension*SquareUI.SQUARE_SIZE+30);;
+        goBack.setFont(AgentSelection.font);
+
+        goBack.setOnMouseEntered(e -> {
+            goBack.setFill(Color.DARKGREEN);
+        });
+        goBack.setOnMouseExited(e -> {
+            goBack.setFill(Color.BLACK);
+        });
+        goBack.setOnMouseClicked(e -> {
+            Main.setAgentSelectionScene();
+        });
+
+        goBack.setVisible(false);
+
+        root.getChildren().add(goBack);
     }
 
     public void setReferee(Referee referee) {
@@ -38,8 +73,6 @@ public class GameUI {
     }
 
     void addSquareUI() {
-        root = new Group();
-
         squareUI = new SquareUI[dimension][dimension];
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < dimension; j++) {
@@ -57,12 +90,8 @@ public class GameUI {
         rectangle.setOpacity(0.5);
         root.getChildren().add(rectangle);
 
-        Text winText = new Text(winner + " WON!");
-        winText.setFont(AgentSelection.font);
-        winText.setLayoutX(0);
-        winText.setLayoutY(0);
-        //winText.setTextAlignment(TextAlignment.CENTER);
-        root.getChildren().add(winText);
+        whoseMove.setText(winner + " WON!");
+        goBack.setVisible(true);
     }
 
     void clickedOnSquare(Cell cell) {
@@ -124,7 +153,8 @@ public class GameUI {
     }
 
     public void currentStateUpdated() {
-//        addSquareAndImageUI();
+        whoseMove.setText(referee.currentAgent.designatedColor() + "'s move");
+
         for (int i = 0; i < referee.currentState.dimension; i++) {
             for (int j = 0; j < referee.currentState.dimension; j++) {
                 squareUI[i][j].showImage(referee.currentState.board[i][j]);

@@ -24,10 +24,10 @@ public class Referee {
 
     public void initUI() {
         currentState = new State(dimension);
-        gameUI.currentStateUpdated();
         turnCount = 0;
         currentAgent = blackAgent;
         otherAgent = whiteAgent;
+        gameUI.currentStateUpdated();
 
         activateNonHumanUIThread();
     }
@@ -49,41 +49,47 @@ public class Referee {
                 + "] Move from " + move.source + " to " +  move.destination);
 
         currentState = currentState.makeMove(move);
-        gameUI.currentStateUpdated();
         turnCount++;
         {
             Agent tmp = currentAgent;
             currentAgent = otherAgent;
             otherAgent = tmp;
         }
+        gameUI.currentStateUpdated();
 
         int status = currentState.gameEndStatus();
         if (status != State.NONE) {
             System.out.println("Game Finished");
             System.out.println(otherAgent.designatedColor() + " WON");
-            gameUI.showWinUI(otherAgent.AgentName());
+            gameUI.showWinUI(otherAgent.designatedColor());
             return;
         }
 
         activateNonHumanUIThread();
     }
 
-    private String conductGame() {
-        for (int turnCount = 0; ; turnCount++) {
-            Agent currentAgent = currentState.currentPlayer == State.BLACK ? blackAgent : whiteAgent;
+    public String conductGame() {
+        currentState = new State(dimension);
+        int status = currentState.gameEndStatus();
+        currentAgent = blackAgent;
+        otherAgent = whiteAgent;
+        for (turnCount = 0; status == State.NONE; turnCount++) {
             Move givenMove = currentAgent.makeMove(new State(currentState));
             currentState = currentState.makeMove(givenMove);
-            gameUI.currentStateUpdated();
 
-            System.out.println("[" + currentAgent.AgentName() + ":" + currentAgent.designatedColor()
-                    + "] Move from " + givenMove.source + " to " +  givenMove.destination);
+//            System.out.println("[" + currentAgent.AgentName() + ":" + currentAgent.designatedColor()
+//                    + "] Move from " + givenMove.source + " to " +  givenMove.destination);
 
-            if (currentState.isConnected(currentState.otherPlayer())) break;
+            status = currentState.gameEndStatus();
+            {
+                Agent tmp = currentAgent;
+                currentAgent = otherAgent;
+                otherAgent = tmp;
+            }
         }
 
-
         String winner;
-        if (currentState.otherPlayer() == State.BLACK) {
+        if (status == State.BLACK) {
             winner = "BLACK";
         } else {
             winner = "WHITE";

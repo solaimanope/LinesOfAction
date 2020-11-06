@@ -30,4 +30,12 @@ public class Cell {
         Cell cell = (Cell) o;
         return row == cell.row && column == cell.column;
     }
+
+    public int distance(Cell other) {
+        return Math.max(Math.abs(row-other.row), Math.abs(column-other.column));
+    }
+
+    public boolean isConnected(Cell other) {
+        return distance(other) <= 1;
+    }
 }

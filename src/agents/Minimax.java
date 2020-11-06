@@ -108,7 +108,7 @@ public class Minimax extends Agent {
             leafCount = 0;
             //root = new Node(state, null);
             minimax(root, depth, -INF, INF);
-            System.out.println("Depth " + depth + " nodes: " + leafCount + " total cutoff: " + cutOffCounter);
+//            System.out.println("Depth " + depth + " nodes: " + leafCount + " total cutoff: " + cutOffCounter);
             if (timer.timesUp()) {
                 break;
             } else {
@@ -117,8 +117,8 @@ public class Minimax extends Agent {
                 if (Math.abs(root.getChildren().get(0).getBestScoreSoFar()) == INF) break;
             }
         }
-        System.out.println("Depths full discovered: " + depthsFullyDiscovered);
-        System.out.println("time taken " + timer.timePassed());
+//        System.out.println("Depths full discovered: " + depthsFullyDiscovered);
+//        System.out.println("time taken " + timer.timePassed());
         return bestMoveSoFar;
     }
 
