@@ -6,6 +6,8 @@ import game.Move;
 import game.State;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
@@ -25,9 +27,12 @@ public class GameUI {
     private Referee referee;
     private Text whoseMove;
     private Text goBack;
+    private boolean showingAnimation;
+    private CheckBox animationCheckBox;
 
     public GameUI(int dimension) {
         this.dimension = dimension;
+        showingAnimation = false;
         root = new Group();
 
         addSquareUI();
@@ -50,7 +55,7 @@ public class GameUI {
 
         goBack = new Text("Go Back");
         goBack.setLayoutX(dimension*SquareUI.SQUARE_SIZE-120);
-        goBack.setLayoutY(dimension*SquareUI.SQUARE_SIZE+30);;
+        goBack.setLayoutY(dimension*SquareUI.SQUARE_SIZE+30);
         goBack.setFont(AgentSelection.font);
 
         goBack.setOnMouseEntered(e -> {
@@ -64,8 +69,14 @@ public class GameUI {
         });
 
         goBack.setVisible(false);
-
         root.getChildren().add(goBack);
+
+        animationCheckBox = new CheckBox("Show animation");
+        animationCheckBox.setLayoutX(dimension*SquareUI.SQUARE_SIZE-250);
+        animationCheckBox.setLayoutY(dimension*SquareUI.SQUARE_SIZE+5);
+        animationCheckBox.setFont(AgentSelection.font);
+        animationCheckBox.setSelected(true);
+        root.getChildren().add(animationCheckBox);
     }
 
     public void setReferee(Referee referee) {
@@ -90,12 +101,14 @@ public class GameUI {
         rectangle.setOpacity(0.5);
         root.getChildren().add(rectangle);
 
+        animationCheckBox.setVisible(false);
         whoseMove.setText(winner + " WON!");
         goBack.setVisible(true);
     }
 
     void clickedOnSquare(Cell cell) {
         if (!(referee.currentAgent instanceof HumanUI)) return;
+        if (showingAnimation) return;
 
         if (activeSource == null) {
             if (referee.currentState.board[cell.row][cell.column] == referee.currentState.currentPlayer) {
@@ -152,6 +165,53 @@ public class GameUI {
         return root;
     }
 
+    public void showMove(Move move) {
+        if (animationCheckBox.isSelected()) {
+            showingAnimation = true;
+            showPieceMoveAnimation(move);
+        } else {
+            referee.afterAnimation();
+        }
+    }
+
+    private void showPieceCaptureAnimation(Move move) {
+        SquareUI destination = squareUI[move.destination.row][move.destination.column];
+
+        if (destination.getCurrentImageView() != null) {
+            PieceCaptureAnimation captureAnimation = new PieceCaptureAnimation(destination.getCurrentImageView());
+            captureAnimation.play();
+            captureAnimation.setOnFinished(e -> {
+//                destination.clearImage();
+                showingAnimation = false;
+                referee.afterAnimation();
+            });
+        } else {
+            showingAnimation = false;
+            referee.afterAnimation();
+        }
+    }
+
+    private void showPieceMoveAnimation(Move move) {
+        int distance = move.source.distance(move.destination);
+        int moveDuration = distance * PieceMoveAnimation.DURATION_PER_UNIT;
+        SquareUI source = squareUI[move.source.row][move.source.column];
+        SquareUI destination = squareUI[move.destination.row][move.destination.column];
+
+        root.getChildren().remove(source.getCurrentImageView());
+        root.getChildren().add(source.getCurrentImageView());
+        if (destination.getCurrentImageView() != null) {
+            root.getChildren().remove(destination.getCurrentImageView());
+            root.getChildren().add(destination.getCurrentImageView());
+        }
+
+        PieceMoveAnimation moveAnimation = new PieceMoveAnimation(source.getCurrentImageView(),
+                destination.baseX-source.baseX, destination.baseY-source.baseY, moveDuration);
+        moveAnimation.play();
+        moveAnimation.setOnFinished(e -> {
+            showPieceCaptureAnimation(move);
+        });
+    }
+
     public void currentStateUpdated() {
         whoseMove.setText(referee.currentAgent.designatedColor() + "'s move");
 
@@ -160,11 +220,5 @@ public class GameUI {
                 squareUI[i][j].showImage(referee.currentState.board[i][j]);
             }
         }
-
-//        try {
-//            Thread.currentThread().sleep(500);
-//        } catch (InterruptedException ie) {
-//            Thread.currentThread().interrupt();
-//        }
     }
 }

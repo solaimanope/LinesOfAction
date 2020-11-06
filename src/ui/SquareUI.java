@@ -22,6 +22,8 @@ public class SquareUI {
     private ImageView currentImageView;
 //    private Circle currentCircle;
     private Rectangle rectangle;
+    public final double baseX;
+    public final double baseY;
 
     GameUI gameUI;
     Cell position;
@@ -30,6 +32,8 @@ public class SquareUI {
         this.position = position;
         this.gameUI = gameUI;
         currentImageView = null;
+        baseX = position.column*SQUARE_SIZE;
+        baseY = position.row*SQUARE_SIZE;
 //        currentCircle = null;
 
         if ((position.row+position.column)%2 == 1) {
@@ -40,10 +44,7 @@ public class SquareUI {
     }
 
     public void showImage(int color) {
-        if (currentImageView != null) {
-            gameUI.getRoot().getChildren().remove(currentImageView);
-            currentImageView = null;
-        }
+        clearImage();
 
         if (color == State.BLACK) {
             try {
@@ -61,12 +62,13 @@ public class SquareUI {
             }
         }
         if (currentImageView != null) {
-            currentImageView.setLayoutX(position.column*SQUARE_SIZE);
-            currentImageView.setLayoutY(position.row*SQUARE_SIZE);
+            currentImageView.setLayoutX(baseX);
+            currentImageView.setLayoutY(baseY);
             currentImageView.setOnMouseClicked(e -> whenClicked());
             gameUI.getRoot().getChildren().add(currentImageView);
         }
     }
+
 //    public void showCircle(int color) {
 //        if (currentCircle != null) {
 //            gameUI.getRoot().getChildren().remove(currentCircle);
@@ -94,8 +96,8 @@ public class SquareUI {
 
     public void drawSquare() {
         rectangle = new Rectangle(SQUARE_SIZE, SQUARE_SIZE);
-        rectangle.setLayoutX(position.column*SQUARE_SIZE);
-        rectangle.setLayoutY(position.row*SQUARE_SIZE);
+        rectangle.setLayoutX(baseX);
+        rectangle.setLayoutY(baseY);
         rectangle.setFill(defaultColor);
         rectangle.setOnMouseClicked(e -> whenClicked());
         gameUI.getRoot().getChildren().add(rectangle);
@@ -115,5 +117,16 @@ public class SquareUI {
     private void whenClicked() {
         System.out.println("Clicked cell " + position.row + ", " + position.column);
         gameUI.clickedOnSquare(position);
+    }
+
+    public ImageView getCurrentImageView() {
+        return currentImageView;
+    }
+
+    public void clearImage() {
+        if (currentImageView != null) {
+            gameUI.getRoot().getChildren().remove(currentImageView);
+            currentImageView = null;
+        }
     }
 }

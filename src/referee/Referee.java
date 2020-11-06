@@ -49,6 +49,10 @@ public class Referee {
                 + "] Move from " + move.source + " to " +  move.destination);
 
         currentState = currentState.makeMove(move);
+        gameUI.showMove(move);
+    }
+
+    public void afterAnimation() {
         turnCount++;
         {
             Agent tmp = currentAgent;
