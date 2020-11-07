@@ -145,6 +145,7 @@ public class AgentSelection {
             minimax.addHeuristics(new MaximizeQuadCount(), 0.025);
             minimax.addHeuristics(new MaximizeDensity(), 2);
             minimax.addHeuristics(new MinimumBoundingBox(), 0.2);
+            minimax.addHeuristics(new MaximizeConnectedness(), 0.05);
             blackAgent = minimax;
         }
         Agent whiteAgent;
@@ -152,6 +153,11 @@ public class AgentSelection {
             whiteAgent = new HumanUI(State.WHITE, gameUI);
         } else {
             Minimax minimax = new Minimax(State.WHITE);
+//            minimax.addHeuristics(new MaximizePositionalScore(), 1);
+//            minimax.addHeuristics(new MaximizeQuadCount(), 0.025);
+//            minimax.addHeuristics(new MaximizeDensity(), 2);
+//            minimax.addHeuristics(new MinimumBoundingBox(), 0.2);
+//            minimax.addHeuristics(new MaximizeConnectedness(), 0.15);
             minimax.addHeuristics(new MaximizeDensity(), 1);
             whiteAgent = minimax;
         }
@@ -159,6 +165,7 @@ public class AgentSelection {
         Referee referee = new Referee(dimension, blackAgent, whiteAgent, gameUI);
         gameUI.setReferee(referee);
         referee.initUI();
+        Main.window.setY(0);
         Main.window.setScene(new Scene(gameUI.getRoot(), SquareUI.SQUARE_SIZE*dimension, SquareUI.SQUARE_SIZE*dimension+50));
 
 //        referee.conductGame();
